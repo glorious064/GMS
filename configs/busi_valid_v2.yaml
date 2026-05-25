@@ -1,0 +1,29 @@
+# Data Settings
+phase: valid
+pickle_file_path: ./Dataset/busi/busi_train_test_names.pkl
+model_weight: ./ckpt/busi_v2/best_model.pth
+snapshot_path: ./ckpt/busi_v2
+save_seg_img_path: ./ckpt/busi_v2/predicted_masks
+
+# Valid Settings
+GPUs: [0]
+num_workers: 4
+batch_size: 1
+seed: 2333
+
+# Model Settings
+model_type: v2
+use_aspp: true
+use_transformer: true
+transformer_heads: 4
+transformer_spatial: 28
+
+in_channel: 4
+out_channels: 4
+num_res_blocks: 2
+ch: 32
+ch_mult: [1,2,4,4]
+
+# Loss Settings
+w_rec: 1
+w_kl: 0.001

@@ -18,7 +18,7 @@ from sklearn.metrics import confusion_matrix
 from data.image_dataset import Image_Dataset
 from utils.tools import seed_reproducer, load_checkpoint, get_cuda, print_options
 from utils.get_logger import open_log
-from networks.latent_mapping_model import ResAttnUNet_DS
+from networks.latent_mapping_model import ResAttnUNet_DS, ResAttnUNet_DS_v2
 from networks.models.autoencoder import AutoencoderKL
 from networks.models.distributions import DiagonalGaussianDistribution
 
@@ -78,13 +78,27 @@ def run_trainer() -> None:
     valid_dataloader = DataLoader(valid_dataset, batch_size=1, pin_memory=True, drop_last=False, shuffle=False)
 
     # Define networks
-    mapping_model = get_cuda(ResAttnUNet_DS(
-        in_channel=configs['in_channel'], 
-        out_channels=configs['out_channels'], 
-        num_res_blocks=configs['num_res_blocks'], 
-        ch=configs['ch'], 
-        ch_mult=configs['ch_mult']
-    ))
+    model_type = configs.get('model_type', 'v1')
+    if model_type == 'v2':
+        mapping_model = get_cuda(ResAttnUNet_DS_v2(
+            in_channel=configs['in_channel'],
+            out_channels=configs['out_channels'],
+            num_res_blocks=configs['num_res_blocks'],
+            ch=configs['ch'],
+            ch_mult=configs['ch_mult'],
+            use_aspp=configs.get('use_aspp', True),
+            use_transformer=configs.get('use_transformer', True),
+            transformer_heads=configs.get('transformer_heads', 4),
+            transformer_spatial=configs.get('transformer_spatial', 28),
+        ))
+    else:
+        mapping_model = get_cuda(ResAttnUNet_DS(
+            in_channel=configs['in_channel'],
+            out_channels=configs['out_channels'],
+            num_res_blocks=configs['num_res_blocks'],
+            ch=configs['ch'],
+            ch_mult=configs['ch_mult']
+        ))
     mapping_model = load_checkpoint(mapping_model, configs['model_weight'])
     mapping_model.eval()
 
